@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # AI Library Assistance Agent (OpenRouter LLM Integration)
 
 An intelligent, full-stack web application that uses a live **Large Language Model (LLM)** via the **OpenRouter API** to dynamically evaluate a library textbook catalogue, filter candidate books, compare suitability scores (0–100), and generate personalized academic book recommendations.
@@ -103,3 +104,7 @@ Library Assistance/
 - The `.env` file is excluded in `.gitignore` to avoid leaking credentials.
 - All OpenRouter API calls are made server-side in `server.js` using HTTPS with Node's native network stack.
 - The client browser only communicates with your local backend (`/api/recommend`), keeping your API key safe.
+=======
+# Library-Assistance-Agent
+Develop an AI Library Assistance Agent that recommends suitable books to students from a provided book catalogue. Ask the student to enter the subject, difficulty level (Beginner, Intermediate, or Advanced), and purpose of learning. 
+>>>>>>> 6519fa5b3adcf4c6fe52d12f93c49366ed001b73
