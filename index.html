@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Library Assistance Agent | Powered by OpenRouter LLM</title>
+  <meta name="description" content="An AI-powered academic library assistant connected to OpenRouter LLM that dynamically analyzes, compares, and recommends computer science textbooks based on your learning goals.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Header / Navigation Bar -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="logo-area">
+        <div class="logo-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+            <path d="M9 10h6"></path>
+            <path d="M9 14h6"></path>
+          </svg>
+        </div>
+        <div>
+          <h1 class="app-title">AI Library Assistance Agent</h1>
+          <p class="app-subtitle">Powered by OpenRouter LLM • Dynamic Reasoning & Evaluation</p>
+        </div>
+      </div>
+      <div class="header-meta">
+        <span id="api-status-badge" class="api-status-badge">
+          <span class="pulse-dot"></span> Checking LLM Status...
+        </span>
+        <span class="catalogue-badge">
+          <span id="catalogue-count">25</span> Books in Catalogue
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Layout -->
+  <main class="main-content">
+    <div class="content-wrapper">
+      
+      <!-- API Key Notice Banner (Visible if .env key is missing) -->
+      <div id="api-warning-banner" class="api-warning-banner" style="display: none;">
+        <div class="warning-icon">🔑</div>
+        <div class="warning-content">
+          <h4>OpenRouter API Key Setup Required</h4>
+          <p>
+            To enable live LLM reasoning, paste your API key in the project root <code>.env</code> file:
+            <br>
+            <span class="code-pill">OPENROUTER_API_KEY=your_openrouter_key_here</span>
+            Then restart the server with <code>npm start</code> or refresh this page.
+          </p>
+        </div>
+      </div>
+
+      <!-- Error Notification Box -->
+      <div id="error-notification" class="error-notification-box" style="display: none;">
+        <div class="error-icon">⚠️</div>
+        <div class="error-content">
+          <h4>LLM Request Error</h4>
+          <p id="error-text">An error occurred while connecting to the LLM.</p>
+        </div>
+      </div>
+
+      <!-- Hero Intro Section -->
+      <section class="hero-intro">
+        <div class="hero-text">
+          <h2>Intelligent Textbook Recommendations Powered by LLM</h2>
+          <p>
+            Specify your subject, current skill level, and learning purpose. 
+            The system sends your request and the library catalogue to an advanced LLM via OpenRouter, 
+            which dynamically computes suitability scores and generates personalized academic guidance.
+          </p>
+        </div>
+        <div class="hero-steps">
+          <div class="step-card">
+            <span class="step-num">1</span>
+            <div class="step-info">
+              <h4>Catalogue Ingestion</h4>
+              <p>25 curated CS books ingested by LLM</p>
+            </div>
+          </div>
+          <div class="step-card">
+            <span class="step-num">2</span>
+            <div class="step-info">
+              <h4>Contextual Filtering</h4>
+              <p>Evaluates difficulty & specific objectives</p>
+            </div>
+          </div>
+          <div class="step-card">
+            <span class="step-num">3</span>
+            <div class="step-info">
+              <h4>Comparative Scoring</h4>
+              <p>LLM dynamically scores 0–100 suitability</p>
+            </div>
+          </div>
+          <div class="step-card">
+            <span class="step-num">4</span>
+            <div class="step-info">
+              <h4>Explainable AI</h4>
+              <p>Top 3 recommendations with tailored rationales</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Input Form Card -->
+      <section class="form-section">
+        <div class="card form-card">
+          <div class="card-header">
+            <h3>Student Learning Preference Form</h3>
+            <p>Customize your parameters for the OpenRouter LLM recommendation agent.</p>
+          </div>
+
+          <form id="recommendation-form" novalidate>
+            <!-- 1. Subject Input -->
+            <div class="form-group">
+              <label for="subject-input" class="form-label">
+                <span class="label-text">1. Subject You Want to Learn</span>
+                <span class="required-indicator">*</span>
+              </label>
+              <div class="input-with-icon">
+                <span class="input-icon">🔍</span>
+                <input 
+                  type="text" 
+                  id="subject-input" 
+                  name="subject" 
+                  class="form-control" 
+                  placeholder="e.g. Python, Cloud Computing, Artificial Intelligence, Cybersecurity, Database Management..." 
+                  autocomplete="off"
+                  required
+                >
+              </div>
+
+              <!-- Quick Suggestion Chips -->
+              <div class="quick-chips-wrapper">
+                <span class="chips-label">Popular Subjects:</span>
+                <div class="chips-list">
+                  <button type="button" class="subject-chip" data-subject="Python">Python</button>
+                  <button type="button" class="subject-chip" data-subject="Cloud Computing">Cloud Computing</button>
+                  <button type="button" class="subject-chip" data-subject="Artificial Intelligence">Artificial Intelligence</button>
+                  <button type="button" class="subject-chip" data-subject="Cybersecurity">Cybersecurity</button>
+                  <button type="button" class="subject-chip" data-subject="Database Management">Database Management</button>
+                  <button type="button" class="subject-chip" data-subject="Data Structures & Algorithms">Data Structures & Algorithms</button>
+                  <button type="button" class="subject-chip" data-subject="Web Development">Web Development</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- 2. Difficulty Level Selection -->
+            <div class="form-group">
+              <label class="form-label">
+                <span class="label-text">2. Target Difficulty Level</span>
+                <span class="required-indicator">*</span>
+              </label>
+              <div class="difficulty-grid">
+                <!-- Beginner Option -->
+                <label class="difficulty-option selected" for="diff-beginner">
+                  <input type="radio" id="diff-beginner" name="difficulty" value="Beginner" checked>
+                  <div class="option-content">
+                    <div class="option-header">
+                      <span class="level-indicator beginner">●</span>
+                      <span class="level-title">Beginner</span>
+                    </div>
+                    <p class="level-desc">Foundational principles, zero assumed prerequisites, step-by-step guidance.</p>
+                  </div>
+                </label>
+
+                <!-- Intermediate Option -->
+                <label class="difficulty-option" for="diff-intermediate">
+                  <input type="radio" id="diff-intermediate" name="difficulty" value="Intermediate">
+                  <div class="option-content">
+                    <div class="option-header">
+                      <span class="level-indicator intermediate">●</span>
+                      <span class="level-title">Intermediate</span>
+                    </div>
+                    <p class="level-desc">Applied techniques, micro-architectures, best practices, real-world libraries.</p>
+                  </div>
+                </label>
+
+                <!-- Advanced Option -->
+                <label class="difficulty-option" for="diff-advanced">
+                  <input type="radio" id="diff-advanced" name="difficulty" value="Advanced">
+                  <div class="option-content">
+                    <div class="option-header">
+                      <span class="level-indicator advanced">●</span>
+                      <span class="level-title">Advanced</span>
+                    </div>
+                    <p class="level-desc">Complex system designs, internal mechanics, optimization, and rigorous theory.</p>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            <!-- 3. Purpose of Learning Selection -->
+            <div class="form-group">
+              <label class="form-label">
+                <span class="label-text">3. Purpose of Learning</span>
+                <span class="required-indicator">*</span>
+              </label>
+              <div class="purpose-grid">
+                <!-- Exam Preparation -->
+                <label class="purpose-option selected" for="purpose-exam">
+                  <input type="radio" id="purpose-exam" name="purpose" value="Exam Preparation" checked>
+                  <div class="option-content">
+                    <span class="purpose-icon">📝</span>
+                    <span class="purpose-title">Exam Preparation</span>
+                    <p class="purpose-desc">Academic textbooks with syllabus review, chapter quizzes, and formal definitions.</p>
+                  </div>
+                </label>
+
+                <!-- Project Development -->
+                <label class="purpose-option" for="purpose-project">
+                  <input type="radio" id="purpose-project" name="purpose" value="Project Development">
+                  <div class="option-content">
+                    <span class="purpose-icon">💻</span>
+                    <span class="purpose-title">Project Development</span>
+                    <p class="purpose-desc">Hands-on tutorials, architecture patterns, code repositories, and practical builds.</p>
+                  </div>
+                </label>
+
+                <!-- Interview Preparation -->
+                <label class="purpose-option" for="purpose-interview">
+                  <input type="radio" id="purpose-interview" name="purpose" value="Interview Preparation">
+                  <div class="option-content">
+                    <span class="purpose-icon">💼</span>
+                    <span class="purpose-title">Interview Preparation</span>
+                    <p class="purpose-desc">System design trade-offs, conceptual FAQs, mock interview questions, and deep drills.</p>
+                  </div>
+                </label>
+
+                <!-- Gaining Basic Knowledge -->
+                <label class="purpose-option" for="purpose-basics">
+                  <input type="radio" id="purpose-basics" name="purpose" value="Gaining Basic Knowledge">
+                  <div class="option-content">
+                    <span class="purpose-icon">🌱</span>
+                    <span class="purpose-title">Gaining Basic Knowledge</span>
+                    <p class="purpose-desc">Intuitive analogies, plain-English overviews, and structured conceptual discovery.</p>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            <!-- Form Action Buttons -->
+            <div class="form-actions">
+              <button type="submit" id="find-books-btn" class="primary-btn">
+                <span class="btn-sparkle">✦</span>
+                <span>Find Recommended Books</span>
+              </button>
+              <button type="button" id="reset-btn" class="secondary-btn">
+                <span>↺</span>
+                <span>Reset Form</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- Loading State (While waiting for OpenRouter LLM) -->
+      <section id="loading-state" class="loading-state-section" style="display: none;">
+        <div class="loading-card">
+          <div class="pulsing-brain">🧠</div>
+          <h3>OpenRouter LLM is Analyzing the Catalogue...</h3>
+          <p>Evaluating 25 textbooks, matching syllabus relevance, calibrating difficulty levels, and synthesizing personalized recommendation reasons.</p>
+          <div class="loading-bar-wrapper">
+            <div class="loading-bar-inner"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Initial Welcome State (Before first search) -->
+      <section id="initial-state" class="initial-state-section">
+        <div class="welcome-box">
+          <div class="welcome-icon">📚</div>
+          <h3>Ready for Live AI Recommendation</h3>
+          <p>
+            Choose your learning criteria above and click <strong>"Find Recommended Books"</strong>. 
+            The OpenRouter LLM will evaluate the catalogue in real time and return ranked matches.
+          </p>
+          <div class="welcome-quick-tests">
+            <span class="quick-test-label">Click to Run Standard Test Inputs:</span>
+            <div class="test-pills">
+              <button type="button" class="test-pill" onclick="runPreset('Python', 'Beginner', 'Exam Preparation')">
+                Test 1: Python • Beginner • Exam Prep
+              </button>
+              <button type="button" class="test-pill" onclick="runPreset('Cloud Computing', 'Intermediate', 'Project Development')">
+                Test 2: Cloud Computing • Intermediate • Project Dev
+              </button>
+              <button type="button" class="test-pill" onclick="runPreset('Artificial Intelligence', 'Advanced', 'Interview Preparation')">
+                Test 3: AI • Advanced • Interview Prep
+              </button>
+              <button type="button" class="test-pill" onclick="runPreset('Quantum Computing', 'Beginner', 'Gaining Basic Knowledge')">
+                Test 4: Non-existent Subject Fallback
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Results Section (Dynamic from LLM) -->
+      <section id="results-section" class="results-section" style="display: none;">
+        
+        <!-- Query Summary Banner -->
+        <div id="query-summary-banner" class="query-summary-banner">
+          <!-- Filled dynamically by JavaScript -->
+        </div>
+
+        <!-- No Matches Fallback Container -->
+        <div id="no-matches-container" style="display: none;">
+          <!-- Filled dynamically by JavaScript when subject is missing -->
+        </div>
+
+        <!-- Top 3 Recommendations Container -->
+        <div id="recommendations-container" class="recommendations-container">
+          <div class="section-title-bar">
+            <div>
+              <h2 class="section-heading">Top LLM-Recommended Books</h2>
+              <p class="section-subheading">Selected and ranked by the OpenRouter LLM based on subject depth, skill calibration, and your learning objective.</p>
+            </div>
+          </div>
+
+          <div id="recommendations-grid" class="recommendations-grid">
+            <!-- Dynamically populated with top 3 book cards -->
+          </div>
+        </div>
+
+        <!-- Book Comparison Table Container -->
+        <div id="comparison-container" class="comparison-container">
+          <div class="section-title-bar">
+            <div>
+              <h2 class="section-heading">Catalogue Comparison & Ranking Matrix</h2>
+              <p class="section-subheading">Candidates evaluated by the LLM with suitability tiers and relevance scores.</p>
+            </div>
+            <span id="comparison-count" class="badge-count">Evaluated Candidates</span>
+          </div>
+
+          <div class="table-responsive-wrapper">
+            <table class="comparison-table" id="comparison-table">
+              <thead>
+                <tr>
+                  <th scope="col" class="th-rank">Rank</th>
+                  <th scope="col" class="th-book">Book Details</th>
+                  <th scope="col" class="th-subject">Subject</th>
+                  <th scope="col" class="th-diff">Difficulty Calibration</th>
+                  <th scope="col" class="th-purpose">Purpose Alignment</th>
+                  <th scope="col" class="th-score">Relevance Score</th>
+                  <th scope="col" class="th-verdict">Suitability Verdict</th>
+                </tr>
+              </thead>
+              <tbody id="comparison-table-body">
+                <!-- Dynamically populated rows -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- LLM Transparency & Architecture Card -->
+        <div class="explainability-box">
+          <div class="explain-header">
+            <span class="info-icon">🤖</span>
+            <h4>OpenRouter LLM Recommendation Architecture</h4>
+          </div>
+          <div class="explain-grid">
+            <div class="explain-item">
+              <strong>1. Real-Time LLM Reasoning</strong>
+              <p>Recommendations, scores (0-100), and explanations are computed dynamically by the LLM without hardcoded scoring tables.</p>
+            </div>
+            <div class="explain-item">
+              <strong>2. Secure API Key Storage (.env)</strong>
+              <p>Your OpenRouter API key is stored securely in <code>.env</code> on the server and never exposed to the client browser.</p>
+            </div>
+            <div class="explain-item">
+              <strong>3. Configurable Model</strong>
+              <p>Swap models anytime in <code>.env</code> (e.g. <code>openai/gpt-4o-mini</code>, <code>meta-llama/llama-3.3-70b-instruct</code>, or <code>google/gemini-2.0-flash-001</code>).</p>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="app-footer">
+    <div class="footer-container">
+      <div class="footer-left">
+        <p><strong>AI Library Assistance Agent</strong> • OpenRouter LLM Integration</p>
+        <p class="footer-desc">Connects your OpenRouter API key from <code>.env</code> with dynamic LLM recommendation reasoning.</p>
+      </div>
+      <div class="footer-right">
+        <span class="system-tag">Node.js + Express Backend</span>
+        <span class="system-tag">OpenRouter API</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="app.js"></script>
+  <script>
+    function runPreset(subject, difficulty, purpose) {
+      document.getElementById("subject-input").value = subject;
+      
+      const diffRadio = document.querySelector(`input[name="difficulty"][value="${difficulty}"]`);
+      if (diffRadio) {
+        diffRadio.checked = true;
+        document.querySelectorAll(".difficulty-option").forEach(card => card.classList.remove("selected"));
+        diffRadio.closest(".difficulty-option")?.classList.add("selected");
+      }
+
+      const purposeRadio = document.querySelector(`input[name="purpose"][value="${purpose}"]`);
+      if (purposeRadio) {
+        purposeRadio.checked = true;
+        document.querySelectorAll(".purpose-option").forEach(card => card.classList.remove("selected"));
+        purposeRadio.closest(".purpose-option")?.classList.add("selected");
+      }
+
+      document.getElementById("recommendation-form").dispatchEvent(new Event("submit"));
+    }
+  </script>
+</body>
+</html>
